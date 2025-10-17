@@ -1,0 +1,17 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: workshop-module4-nodejs
+  title: Module 4 - Node.js
+  description: |
+    Creating and deploying a serverless transaction chain with CloudEvents and Knative Eventing.
+  annotations:
+    backstage.io/techdocs-ref: dir:.
+  tags:
+    - serverless
+    - nodejs
+spec:
+  type: module
+  lifecycle: production
+  owner: group:default/cluster-admins
+  subcomponentOf: component:default/workshop-repository

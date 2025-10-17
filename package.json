@@ -1,0 +1,22 @@
+{
+  "name": "workshop-nodejs-using-cloudevents-with-knative",
+  "version": "1.0.0",
+  "description": "Node.js workshop module for building a CloudEvents transaction chain on Knative Eventing.",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js"
+  },
+  "author": "Red Hat Workshops",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "cloudevents": "^8.0.2",
+    "express": "^4.19.2",
+    "kafkajs": "^2.2.4",
+    "pino": "^8.17.0",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  }
+}

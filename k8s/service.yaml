@@ -1,0 +1,24 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: transaction-chain
+spec:
+  template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/minScale: "1"
+    spec:
+      containers:
+        - image: {{IMAGE}}
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          env:
+            - name: EVENT_SOURCE
+              value: urn:workshop:transaction-chain:nodejs
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              value: kafka.workshop-kafka.svc.cluster.local:9092
+            - name: KAFKA_TOPIC_COMPLETED
+              value: <username>--transactions-completed
+            - name: LOG_LEVEL
+              value: info

@@ -1,0 +1,10 @@
+site_name: Module 4
+site_description: Creating and Deploying your first Serverless Function with Node.js
+
+nav:
+  - Overview: index.md
+  - CloudEvents Workflow: cloudevents-workflow.md
+  - How It Works: how-it-works.md
+
+plugins:
+  - techdocs-core

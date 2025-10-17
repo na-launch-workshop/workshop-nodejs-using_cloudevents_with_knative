@@ -1,0 +1,59 @@
+apiVersion: eventing.knative.dev/v1
+kind: Trigger
+metadata:
+  name: validate-transaction
+spec:
+  broker: default
+  filter:
+    attributes:
+      type: defaultChain
+  subscriber:
+    ref:
+      apiVersion: serving.knative.dev/v1
+      kind: Service
+      name: transaction-chain
+---
+apiVersion: eventing.knative.dev/v1
+kind: Trigger
+metadata:
+  name: fraud-check
+spec:
+  broker: default
+  filter:
+    attributes:
+      type: fraudCheck
+  subscriber:
+    ref:
+      apiVersion: serving.knative.dev/v1
+      kind: Service
+      name: transaction-chain
+---
+apiVersion: eventing.knative.dev/v1
+kind: Trigger
+metadata:
+  name: process-payment
+spec:
+  broker: default
+  filter:
+    attributes:
+      type: annotated
+  subscriber:
+    ref:
+      apiVersion: serving.knative.dev/v1
+      kind: Service
+      name: transaction-chain
+---
+apiVersion: eventing.knative.dev/v1
+kind: Trigger
+metadata:
+  name: settle-transaction
+spec:
+  broker: default
+  filter:
+    attributes:
+      type: lastChainLink
+  subscriber:
+    ref:
+      apiVersion: serving.knative.dev/v1
+      kind: Service
+      name: transaction-chain
