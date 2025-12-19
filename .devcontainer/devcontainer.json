@@ -1,0 +1,9 @@
+{
+  "name": "Codespaces",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:20",
+  "customizations": {
+    "vscode": {
+      "extensions": []
+    }
+  }
+}
