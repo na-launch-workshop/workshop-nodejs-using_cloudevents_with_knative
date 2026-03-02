@@ -13,5 +13,5 @@ metadata:
 spec:
   type: module
   lifecycle: production
-  owner: group:default/cluster-admins
+  owner: group:default/workshop-admins
   subcomponentOf: component:default/workshop-repository
