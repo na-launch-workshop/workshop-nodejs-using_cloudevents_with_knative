@@ -1,5 +1,5 @@
-site_name: Module 4
-site_description: Creating and Deploying your first Serverless Function with Node.js
+site_name: CloudEvents with Node.js
+site_description: Building a CloudEvents Transaction Chain with Node.js
 
 nav:
   - Overview: index.md

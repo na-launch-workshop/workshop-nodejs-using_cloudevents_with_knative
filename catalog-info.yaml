@@ -1,15 +1,21 @@
 apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
-  name: workshop-module4-nodejs
-  title: Module 4 - Node.js
+  name: workshop-nodejs-using_cloudevents_with_knative
+  title: CloudEvents with Node.js
   description: |
-    Creating and deploying a serverless transaction chain with CloudEvents and Knative Eventing.
+    Building a CloudEvents Transaction Chain with Node.js
   annotations:
     backstage.io/techdocs-ref: dir:.
   tags:
+    - cloudevents
     - serverless
+    - kafka
     - nodejs
+# links:
+#    - url: https://<openshift-cluster>/#<hosted-git-repo>
+#      title: "Launch from Dev Spaces"
+#      icon: web
 spec:
   type: module
   lifecycle: production

@@ -1,52 +1,44 @@
-# 🚀 Module 4: Building a Serverless Transaction Chain with Node.js
+# 🚀 **Module: Building a CloudEvents Transaction Chain with Node.js**
 
-Technology Stack:
+**Technology Stack:**
 
 - Node.js + Express
-- CloudEvents 1.0
-- Knative Eventing on OpenShift Serverless
+- CloudEvents (CNCF)
+- Knative Eventing
+- Red Hat OpenShift Serverless
 - Apache Kafka
 
 ---
 
-## 🎯 Scenario
+## 🎯 **Scenario**
 
-Company A is forwarding credit card transactions to ACME. Each transaction must pass four stateless services before it is considered settled.
+Company A is sending a payment transaction (credit card) to ACME. ACME has 4 business steps that must succeed for the transaction to be considered complete.
 
-1. **Validate Customer** – confirm the account is active
-2. **Fraud Detection** – apply rules/ML to decide if it is safe
-3. **Payment Processing** – debit the account and confirm with the network
-4. **Settlement & Notification** – persist the outcome and alert the customer
+1. Customer Profile Service — confirm the customer is active
+2. Fraud Detection Service — ensure the transaction is legitimate
+3. Payment Processor — debit the account and reach out to the card network
+4. Settlement Services — ledger the transaction and notify the customer
 
-We replace a monolithic, stateful workflow engine with an event-driven pipeline. CloudEvents headers (`ce-type`) drive the entire orchestration through Knative Triggers.
-
----
-
-## 🧩 Challenge
-
-- Handle incoming CloudEvents in Node.js, using only headers and payload
-- Emit new CloudEvents with updated business state so the broker can route them
-- Keep services stateless; rely on Knative scaling instead of storing context
-- Send the final transaction state to Kafka for downstream consumers
+The existing workflow engine is stateful and centralized. In this module you will replace it with a stateless, event-driven architecture powered by CloudEvents on Knative.
 
 ---
 
-## 🔄 Event Chain at a Glance
+## 🧩 **Challenge**
 
-| Step | Trigger (`ce-type`) | Business Action | Outgoing `ce-type` |
-| ---- | ------------------- | ----------------| ------------------ |
-| 1 | `defaultChain` | Validate customer profile | `fraudCheck` |
-| 2 | `fraudCheck` | Flag/clear transaction | `annotated` |
-| 3 | `annotated` | Process payment | `lastChainLink` |
-| 4 | `lastChainLink` | Settle + notify + publish to Kafka | _terminates chain_ |
-
-Each HTTP handler enriches the transaction payload (`status`, `message`) and returns a new CloudEvent to the Knative Broker. The final step responds with `204` so Knative stops forwarding.
+- [ ] Receive CloudEvents in a Node.js service and route based on the `ce-type` header
+- [ ] Emit new CloudEvents that drive the remainder of the workflow through Knative Triggers
+- [ ] Enrich the transaction payload at every hop (status + message fields)
+- [ ] Publish the final CloudEvent payload to Kafka for downstream consumers
 
 ---
 
-## 📦 Sample CloudEvents
+## 🔄 **Transaction Flow**
 
-Use the provided `curler` pod to post CloudEvents into the `default` broker. Replace `<namespace>` with your OpenShift project name.
+### 1. 🔹 Validate Customer (`defaultChain`)
+- Triggered by an external CloudEvent (`ce-type: defaultChain`)
+- Simulates a call to a Customer Profile Service
+- Marks the transaction as **VALIDATED**
+- Responds with a new CloudEvent of type `fraudCheck`
 
 ```bash
 NS=$(oc project -q)
@@ -56,16 +48,72 @@ oc exec -it curler -n "$NS" -- curl -v \
   -H "Ce-Id: txn-001" \
   -H "Ce-Specversion: 1.0" \
   -H "Ce-Type: defaultChain" \
-  -H "Ce-Source: docs" \
+  -H "Ce-Source: bash" \
   -H "Content-Type: application/json" \
-  -d '{"transactionId":"txn-42","customerId":"1001","amount":2500,"currency":"USD"}'
+  -d '{"transactionId":"txn-1001","customerId":"42","amount":12500,"currency":"JPY"}'
+```
+
+### 2. 🔸 **Fraud Check (`fraudCheck`)**
+- Triggered by a Knative Trigger watching for `ce-type: fraudCheck`
+- Simulates a machine-learning powered fraud engine
+- Flags transactions above 10,000 for manual review
+- Responds with a CloudEvent of type `annotated`
+
+```bash
+NS=$(oc project -q)
+
+oc exec -it curler -n "$NS" -- curl -v \
+  "http://broker-ingress.knative-eventing.svc.cluster.local/${NS}/default" \
+  -H "Ce-Id: txn-002" \
+  -H "Ce-Specversion: 1.0" \
+  -H "Ce-Type: fraudCheck" \
+  -H "Ce-Source: bash" \
+  -H "Content-Type: application/json" \
+  -d '{"transactionId":"txn-1002","customerId":"57","amount":5000,"currency":"USD"}'
+```
+
+### 3. 🔹 **Payment Processing (`annotated`)**
+- Triggered when the previous step emits `ce-type: annotated`
+- Simulates calls to the core banking system and a card network
+- Marks the transaction as **PROCESSED**
+- Responds with a CloudEvent of type `lastChainLink`
+
+```bash
+NS=$(oc project -q)
+
+oc exec -it curler -n "$NS" -- curl -v \
+  "http://broker-ingress.knative-eventing.svc.cluster.local/${NS}/default" \
+  -H "Ce-Id: txn-003" \
+  -H "Ce-Specversion: 1.0" \
+  -H "Ce-Type: annotated" \
+  -H "Ce-Source: bash" \
+  -H "Content-Type: application/json" \
+  -d '{"transactionId":"txn-1003","customerId":"99","amount":2000,"currency":"EUR"}'
+```
+
+### 4. 🔸 **Settlement (`lastChainLink`)**
+- Triggered by `ce-type: lastChainLink`
+- Simulates ledger + notification calls
+- Publishes the enriched transaction to Kafka (`<username>--transactions-completed`)
+- Terminates the CloudEvent chain with a `204 No Content` response
+
+```bash
+NS=$(oc project -q)
+
+oc exec -it curler -n "$NS" -- curl -v \
+  "http://broker-ingress.knative-eventing.svc.cluster.local/${NS}/default" \
+  -H "Ce-Id: txn-004" \
+  -H "Ce-Specversion: 1.0" \
+  -H "Ce-Type: lastChainLink" \
+  -H "Ce-Source: bash" \
+  -H "Content-Type: application/json" \
+  -d '{"transactionId":"txn-1004","customerId":"88","amount":7500,"currency":"GBP","status":"PROCESSED","message":"Payment successfully processed"}'
 ```
 
 ---
 
-## ✅ What You Will Learn
+## ✅ **Key Takeaways**
 
-- Designing CloudEvent-driven chains without function-specific frameworks
-- Mapping Knative Triggers to `ce-type` values
-- Managing Kafka producers in a stateless HTTP service
-- Observing event flows via `oc logs` and Knative broker traces
+- Event choreography is handled entirely through CloudEvents headers and Knative Triggers
+- Each Node.js handler is stateless—Knative scales it up and down based on demand
+- Kafka captures the final transaction state for further analytics or notifications

@@ -1,6 +1,6 @@
-# 🚀 Module 4: Building a CloudEvents Transaction Chain with Node.js
+# 🚀 **Module: Building a CloudEvents Transaction Chain with Node.js**
 
-Technology Stack:
+**Technology Stack:**
 
 - Node.js + Express
 - CloudEvents (CNCF)
@@ -10,7 +10,7 @@ Technology Stack:
 
 ---
 
-## 🎯 Scenario
+## 🎯 **Scenario**
 
 Company A is sending a payment transaction (credit card) to ACME. ACME has 4 business steps that must succeed for the transaction to be considered complete.
 
@@ -23,16 +23,16 @@ The existing workflow engine is stateful and centralized. In this module you wil
 
 ---
 
-## 🧩 Challenge Checklist
+## 🧩 **Challenge**
 
-- Receive CloudEvents in a Node.js service and route based on the `ce-type` header
-- Emit new CloudEvents that drive the remainder of the workflow through Knative Triggers
-- Enrich the transaction payload at every hop (status + message fields)
-- Publish the final CloudEvent payload to Kafka for downstream consumers
+- [ ] Receive CloudEvents in a Node.js service and route based on the `ce-type` header
+- [ ] Emit new CloudEvents that drive the remainder of the workflow through Knative Triggers
+- [ ] Enrich the transaction payload at every hop (status + message fields)
+- [ ] Publish the final CloudEvent payload to Kafka for downstream consumers
 
 ---
 
-## 🔄 Transaction Flow
+## 🔄 **Transaction Flow**
 
 ### 1. 🔹 Validate Customer (`defaultChain`)
 - Triggered by an external CloudEvent (`ce-type: defaultChain`)
@@ -53,7 +53,7 @@ oc exec -it curler -n "$NS" -- curl -v \
   -d '{"transactionId":"txn-1001","customerId":"42","amount":12500,"currency":"JPY"}'
 ```
 
-### 2. 🔸 Fraud Check (`fraudCheck`)
+### 2. 🔸 **Fraud Check (`fraudCheck`)**
 - Triggered by a Knative Trigger watching for `ce-type: fraudCheck`
 - Simulates a machine-learning powered fraud engine
 - Flags transactions above 10,000 for manual review
@@ -72,7 +72,7 @@ oc exec -it curler -n "$NS" -- curl -v \
   -d '{"transactionId":"txn-1002","customerId":"57","amount":5000,"currency":"USD"}'
 ```
 
-### 3. 🔹 Payment Processing (`annotated`)
+### 3. 🔹 **Payment Processing (`annotated`)**
 - Triggered when the previous step emits `ce-type: annotated`
 - Simulates calls to the core banking system and a card network
 - Marks the transaction as **PROCESSED**
@@ -91,7 +91,7 @@ oc exec -it curler -n "$NS" -- curl -v \
   -d '{"transactionId":"txn-1003","customerId":"99","amount":2000,"currency":"EUR"}'
 ```
 
-### 4. 🔸 Settlement (`lastChainLink`)
+### 4. 🔸 **Settlement (`lastChainLink`)**
 - Triggered by `ce-type: lastChainLink`
 - Simulates ledger + notification calls
 - Publishes the enriched transaction to Kafka (`<username>--transactions-completed`)
@@ -112,7 +112,7 @@ oc exec -it curler -n "$NS" -- curl -v \
 
 ---
 
-## ✅ Key Takeaways
+## ✅ **Key Takeaways**
 
 - Event choreography is handled entirely through CloudEvents headers and Knative Triggers
 - Each Node.js handler is stateless—Knative scales it up and down based on demand

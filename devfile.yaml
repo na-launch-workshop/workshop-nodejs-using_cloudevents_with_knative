@@ -1,8 +1,8 @@
 schemaVersion: 2.2.2
 metadata:
-  name: workshop-module4-nodejs
+  name: workshop-nodejs-using_cloudevents_with_knative
   version: 1.0.0
-  description: DevSpaces workspace for Node.js CloudEvents app
+  description: Building a CloudEvents Transaction Chain with Node.js
 attributes:
   che-editor: vscode
 components:
@@ -25,9 +25,9 @@ components:
         - name: npm-cache
           path: /home/user/.npm
       cpuLimit: '2'
-      cpuRequest: '0.5'
-      memoryLimit: '4G'
-      memoryRequest: '2G'
+      cpuRequest: '500m'
+      memoryLimit: '4Gi'
+      memoryRequest: '2Gi'
       mountSources: true
   - name: npm-cache
     volume:
