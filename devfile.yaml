@@ -18,7 +18,7 @@ components:
           protocol: tcp
           targetPort: 9229
         - exposure: public
-          name: transaction-chain
+          name: transact-chain
           protocol: http
           targetPort: 8080
       volumeMounts:
