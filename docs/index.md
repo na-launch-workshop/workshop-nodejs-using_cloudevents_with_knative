@@ -32,13 +32,15 @@ The existing workflow engine is stateful and centralized. In this module you wil
 
 ---
 
-## 🔄 **Transaction Flow**
+## 🔄 Transaction Flow Breakdown
 
-### 1. 🔹 Validate Customer (`defaultChain`)
-- Triggered by an external CloudEvent (`ce-type: defaultChain`)
-- Simulates a call to a Customer Profile Service
-- Marks the transaction as **VALIDATED**
-- Responds with a new CloudEvent of type `fraudCheck`
+### **1. 🔹 Validate Customer (`defaultChain`)**
+- Triggered by an external Knative CloudEvent (`defaultChain`), e.g., from a curl call.
+- Mocks a call to a Customer Profile Service (verifies customer account is active).
+- Marks transaction as **VALIDATED**.
+- Returns a CloudEvent of type `fraudCheck`.
+
+###### ✨ Example: Creating a CloudEvent | Default Chain
 
 ```bash
 NS=$(oc project -q)
@@ -53,11 +55,17 @@ oc exec -it curler -n "$NS" -- curl -v \
   -d '{"transactionId":"txn-1001","customerId":"42","amount":12500,"currency":"JPY"}'
 ```
 
-### 2. 🔸 **Fraud Check (`fraudCheck`)**
-- Triggered by a Knative Trigger watching for `ce-type: fraudCheck`
-- Simulates a machine-learning powered fraud engine
-- Flags transactions above 10,000 for manual review
-- Responds with a CloudEvent of type `annotated`
+---
+
+### **2. 🔸 Fraud Check (fraudCheck)**
+- Triggered by the `fraudCheck` function (annotation-based mapping).
+- Mocks a Fraud Detection System (rules + ML).
+- Business rule:
+  - If amount > 10,000 → **FLAGGED** for manual review.
+  - Otherwise → **CLEARED**.
+  - Emits a CloudEvent of type `annotated` to trigger the processPayment step.
+
+###### ✨ Example: Creating a CloudEvent | Fraud Check
 
 ```bash
 NS=$(oc project -q)
@@ -72,11 +80,17 @@ oc exec -it curler -n "$NS" -- curl -v \
   -d '{"transactionId":"txn-1002","customerId":"57","amount":5000,"currency":"USD"}'
 ```
 
-### 3. 🔹 **Payment Processing (`annotated`)**
-- Triggered when the previous step emits `ce-type: annotated`
-- Simulates calls to the core banking system and a card network
-- Marks the transaction as **PROCESSED**
-- Responds with a CloudEvent of type `lastChainLink`
+---
+
+### **3. 🔹 Payment Processing (processPayment)**
+- Triggered by the `processPayment` function (annotation-based mapping).
+- Mocks:
+  - Core Banking API (debit customer account).
+  - Payment Gateway (Visa/MasterCard).
+- Marks transaction as **PROCESSED**.
+- Returns a CloudEvent of type `lastChainLink`.
+
+###### ✨ Example: Creating a CloudEvent | Payment Processing
 
 ```bash
 NS=$(oc project -q)
@@ -91,7 +105,9 @@ oc exec -it curler -n "$NS" -- curl -v \
   -d '{"transactionId":"txn-1003","customerId":"99","amount":2000,"currency":"EUR"}'
 ```
 
-### 4. 🔸 **Settlement (`lastChainLink`)**
+---
+
+### **4. 🔸 Settlement (`lastChainLink`)**
 - Triggered by `ce-type: lastChainLink`
 - Simulates ledger + notification calls
 - Publishes the enriched transaction to Kafka (`<username>--transactions-completed`)
