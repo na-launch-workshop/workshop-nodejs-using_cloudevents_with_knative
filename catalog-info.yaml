@@ -7,17 +7,18 @@ metadata:
     Building a CloudEvents Transaction Chain with Node.js
   annotations:
     backstage.io/techdocs-ref: dir:.
+#   backstage.io/techdocs-ref: dir:https://<hosted-git-repo>     # use absolute path instead to consolidate techdocs among repo forks
   tags:
     - cloudevents
     - serverless
     - kafka
     - nodejs
 # links:
-#    - url: https://<openshift-cluster>/#<hosted-git-repo>
-#      title: "Launch from Dev Spaces"
-#      icon: web
+#   - url: https://<devspaces-url>/#<hosted-git-repo>
+#     title: 🚀 Launch from Dev Spaces
+#     icon: web
 spec:
   type: module
   lifecycle: production
-  owner: group:default/workshop-admins
+  owner: group:default/developers
   subcomponentOf: component:default/workshop-repository
